@@ -9,7 +9,7 @@ import (
 	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
-// Get returns RateLimiter by name, nil will be returned if not exists.
+// Get returns rate limiter by name, nil will be returned if not exists.
 func Get(name string) *RateLimiter {
 	if rl, ok := limiters[name]; ok {
 		return rl
@@ -18,7 +18,7 @@ func Get(name string) *RateLimiter {
 	}
 }
 
-// Get returns RateLimiter by name, or create an new one if not exists.
+// Get returns rate limiter by name, or create an new one if not exists.
 func GetOrNew(name string, periodSec, times int64) *RateLimiter {
 	if rl, ok := limiters[name]; ok {
 		return rl
@@ -36,7 +36,7 @@ func GetOrNew(name string, periodSec, times int64) *RateLimiter {
 	}
 }
 
-// Get returns RateLimiter by name, or create an new one if not exists. It panics if fails to parse formatted rate string.
+// Get returns rate limiter by name, or create an new one if not exists. It panics if fails to parse formatted rate string.
 func GetOrParseNew(name, expr string) *RateLimiter {
 	if rl, ok := limiters[name]; ok {
 		return rl

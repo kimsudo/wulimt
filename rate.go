@@ -30,7 +30,7 @@ func (rl *RateLimiter) GetBufferRate() float64 {
 	return rl.b
 }
 
-// GetBufferRate sets buffer rate of the rate limiter, value <= 0 will disable time buffer in WaitMore() as well.
+// SetBufferRate sets buffer rate of the rate limiter, value <= 0 will disable time buffer in WaitMore() as well.
 func (rl *RateLimiter) SetBufferRate(br float64) {
 	rl.b = br
 }
@@ -40,7 +40,7 @@ func (rl *RateLimiter) Wait() {
 	waitOnLimiter(rl.l, -1)
 }
 
-// WaitMore blocks current goroutine to ensure the rate limit requirement is fulfilled, and wait a little longer.
+// WaitMore blocks current goroutine to ensure the rate limiting requirement is fulfilled, and wait a little longer.
 func (rl *RateLimiter) WaitMore() {
 	waitOnLimiter(rl.l, rl.b)
 }
