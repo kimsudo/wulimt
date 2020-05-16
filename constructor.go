@@ -1,3 +1,4 @@
+// Package wulimt is a wrapper for ulule/limiter to provide simple rate limiter for client-side app.
 package wulimt
 
 import (
