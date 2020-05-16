@@ -25,6 +25,16 @@ func (rl RateLimiter) String() string {
 	return fmt.Sprintf("{limiter:%s, rate:%v/%v}", rl.n, rl.l.Rate.Limit, rl.l.Rate.Period)
 }
 
+// GetBufferRate returns buffer rate of the rate limiter.
+func (rl *RateLimiter) GetBufferRate() float64 {
+	return rl.b
+}
+
+// GetBufferRate sets buffer rate of the rate limiter, value <= 0 will disable time buffer in WaitMore() as well.
+func (rl *RateLimiter) SetBufferRate(br float64) {
+	rl.b = br
+}
+
 // Wait blocks current goroutine to ensure the rate limit requirement is fulfilled.
 func (rl *RateLimiter) Wait() {
 	waitOnLimiter(rl.l, -1)
