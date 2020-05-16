@@ -28,6 +28,7 @@ func GetOrNew(name string, periodSec, times int64) *RateLimiter {
 				Period: time.Duration(periodSec) * time.Second,
 				Limit:  times,
 			}),
+			b: defaultBufferRate,
 		}
 		limiters[name] = rl
 		return rl
@@ -49,6 +50,7 @@ func GetOrParseNew(name, expr string) *RateLimiter {
 		rl = &RateLimiter{
 			n: name,
 			l: limiter.New(memory.NewStore(), *rate),
+			b: defaultBufferRate,
 		}
 		limiters[name] = rl
 		return rl

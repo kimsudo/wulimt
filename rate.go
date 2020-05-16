@@ -12,12 +12,32 @@ import (
 type RateLimiter struct {
 	n string
 	l *limiter.Limiter
+	b float64
 }
+
+const (
+	defaultBufferRate = 0.4
+)
 
 var limiters = map[string]*RateLimiter{}
 
 func (rl RateLimiter) String() string {
 	return fmt.Sprintf("{limiter:%s, rate:%v/%v}", rl.n, rl.l.Rate.Limit, rl.l.Rate.Period)
+}
+
+// Wait blocks current goroutine to ensure the rate limit requirement is fulfilled.
+func (rl *RateLimiter) Wait() {
+	waitOnLimiter(rl.l, -1)
+}
+
+// WaitMore blocks current goroutine to ensure the rate limit requirement is fulfilled, and wait a little longer.
+func (rl *RateLimiter) WaitMore() {
+	waitOnLimiter(rl.l, rl.b)
+}
+
+// Estimate returns average waiting time of the rate limiter.
+func (rl *RateLimiter) Estimate() time.Duration {
+	return time.Duration((float64(rl.l.Rate.Period) * (1 + 0.5*rl.b)) / float64(rl.l.Rate.Limit))
 }
 
 func waitOnLimiter(rl *limiter.Limiter, bufferRate float64) {
@@ -40,23 +60,4 @@ func waitOnLimiter(rl *limiter.Limiter, bufferRate float64) {
 			break
 		}
 	}
-}
-
-// Wait blocks current goroutine to ensure the rate limit requirement is fulfilled.
-func (rl *RateLimiter) Wait() {
-	waitOnLimiter(rl.l, -1)
-}
-
-const (
-	maxBufferRate = 0.4
-)
-
-// WaitMore blocks current goroutine to ensure the rate limit requirement is fulfilled, and wait a little longer.
-func (rl *RateLimiter) WaitMore() {
-	waitOnLimiter(rl.l, maxBufferRate)
-}
-
-// Estimate returns average waiting time of the rate limiter.
-func (rl *RateLimiter) Estimate() time.Duration {
-	return time.Duration((float64(rl.l.Rate.Period) * (1 + 0.5*maxBufferRate)) / float64(rl.l.Rate.Limit))
 }
