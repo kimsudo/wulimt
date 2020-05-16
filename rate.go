@@ -16,10 +16,11 @@ type RateLimiter struct {
 
 var limiters = map[string]*RateLimiter{}
 
-func (rl *RateLimiter) String() string {
+func (rl RateLimiter) String() string {
 	return fmt.Sprintf("{limiter:%s, rate:%v/%v}", rl.n, rl.l.Rate.Limit, rl.l.Rate.Period)
 }
 
+// Wait blocks current goroutine to ensure the rate limit requirement is fulfilled.
 func (rl *RateLimiter) Wait() {
 	key := "default"
 	for {
@@ -27,12 +28,9 @@ func (rl *RateLimiter) Wait() {
 		if ctx.Reached {
 			interval := time.Unix(ctx.Reset, 0).Sub(time.Now())
 			if interval > 0 {
-				//log.Debug("wait for next period", zap.Duration("left", interval))
 				timer := time.NewTimer(interval)
 				<-timer.C
-				//log.Debug("time is up, let's retry")
 			} else {
-				//log.Debug("not ready yet", zap.Duration("left", interval))
 				time.Sleep(200 * time.Millisecond)
 			}
 		} else {
@@ -45,6 +43,7 @@ const (
 	maxBufferRate = 0.4
 )
 
+// WaitMore blocks current goroutine to ensure the rate limit requirement is fulfilled, and wait a little longer.
 func (rl *RateLimiter) WaitMore() {
 	key := "default"
 	for {
@@ -53,9 +52,7 @@ func (rl *RateLimiter) WaitMore() {
 			interval := time.Unix(ctx.Reset, 0).Sub(time.Now())
 			if interval > 0 {
 				bufferRate, _ := yrand.Float64()
-				fmt.Printf("~~~ original: %v, rate: %f, ", interval, bufferRate)
 				interval = time.Duration((bufferRate*maxBufferRate + 1) * float64(interval))
-				fmt.Printf("adjusted: %v\n", interval)
 				timer := time.NewTimer(interval)
 				<-timer.C
 			} else {
@@ -67,6 +64,7 @@ func (rl *RateLimiter) WaitMore() {
 	}
 }
 
+// Estimate returns average waiting time of the rate limiter.
 func (rl *RateLimiter) Estimate() time.Duration {
 	return time.Duration((float64(rl.l.Rate.Period) * (1 + 0.5*maxBufferRate)) / float64(rl.l.Rate.Limit))
 }

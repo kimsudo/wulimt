@@ -9,6 +9,7 @@ import (
 	limiter "github.com/ulule/limiter/v3"
 )
 
+// ParseRate parses formatted rate string like 1-10s (1 for every 10s), 60-m (60 per minute).
 func ParseRate(formatted string) (*limiter.Rate, error) {
 	rate := &limiter.Rate{}
 
